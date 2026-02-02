@@ -20,7 +20,7 @@ class Export < ApplicationRecord
   def build
     processing!
 
-    with_context do
+    with_account_context do
       ZipFile.create_for(file, filename: filename) do |zip|
         populate_zip(zip)
       end
@@ -45,14 +45,9 @@ class Export < ApplicationRecord
       "fizzy-export-#{id}.zip"
     end
 
-    def with_context
+    def with_account_context
       Current.set(account: account) do
-        old_url_options = ActiveStorage::Current.url_options
-        ActiveStorage::Current.url_options = Rails.application.routes.default_url_options
-
         yield
-      ensure
-        ActiveStorage::Current.url_options = old_url_options
       end
     end
 
